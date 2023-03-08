@@ -28,6 +28,8 @@ int playerX = 0;
 int playerY = 0;
 int backX = 0;
 int backY = 0;
+int mouseX;
+int mouseY;
 SDL_RendererFlip playerDirection;
 SDL_RendererFlip backDirection;
 int eaten [ ( 3840 / ( TILE_WIDTH * SCALE ) ) ][ ( 2160 / ( TILE_HEIGHT * SCALE ) ) ] = { { 0 } };
@@ -237,7 +239,8 @@ int main( int argc, char **argv ) {
 
 			}
 			if ( e.type == SDL_MOUSEBUTTONDOWN ) {
-				quit = 1;
+				SDL_GetMouseState( &mouseX, &mouseY );
+				eaten[mouseX/(TILE_WIDTH*SCALE)][mouseY/(TILE_HEIGHT*SCALE)] = 1;
 			}
 		}
 
