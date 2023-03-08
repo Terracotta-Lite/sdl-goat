@@ -21,7 +21,7 @@
 #define PLAYER_STEP 2
 
 /* Variables */
-int EXIT_CODE = 0;
+uint8_t EXIT_CODE = 0;
 int screen_width;
 int screen_height;
 int playerX = 0;
@@ -32,7 +32,7 @@ int mouseX;
 int mouseY;
 SDL_RendererFlip playerDirection;
 SDL_RendererFlip backDirection;
-int eaten [ ( 3840 / ( TILE_WIDTH * SCALE ) ) ][ ( 2160 / ( TILE_HEIGHT * SCALE ) ) ] = { { 0 } };
+uint8_t eaten [ ( 3840 / ( TILE_WIDTH * SCALE ) ) ][ ( 2160 / ( TILE_HEIGHT * SCALE ) ) ] = { { 0 } };
 
 /*
 Log an SDL error with some error message to the output stream of our choice
