@@ -1,38 +1,22 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
-#include <string.h>
-
-/* Define window resolutions */
-#define START_WIDTH 480
-#define START_HEIGHT 640
-
-/* Define the scale */
-#define SCALE 10
-
-/* Define tile sizes */
-#define TILE_WIDTH 8
-#define TILE_HEIGHT 5
-
-
-/* Define the character's attributes */
-#define PLAYER_WIDTH 9
-#define PLAYER_HEIGHT 11
-#define PLAYER_STEP 2
+#include "config.h"
 
 /* Variables */
 uint8_t EXIT_CODE = 0;
 int screen_width;
 int screen_height;
+int mouseX;
+int mouseY;
 int playerX = 0;
 int playerY = 0;
 int backX = 0;
 int backY = 0;
-int mouseX;
-int mouseY;
 SDL_RendererFlip playerDirection;
 SDL_RendererFlip backDirection;
 uint8_t eaten [ ( 3840 / ( TILE_WIDTH * SCALE ) ) ][ ( 2160 / ( TILE_HEIGHT * SCALE ) ) ] = { { 0 } };
+int quit = 0;
 
 /*
 Log an SDL error with some error message to the output stream of our choice
@@ -85,16 +69,6 @@ void renderTexture( SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, in
 	dst.h = h;
 	SDL_RenderCopyEx( ren, tex, NULL, &dst, 0, NULL, flip );
 }
-
-int inSquare( int rootX, int rootY, int checkX, int checkY, int lengthX, int lengthY ) {
-	if (
-	checkX - rootX < lengthX &&
-	checkX - rootX > -lengthX &&
-	checkY - rootY < lengthY &&
-	checkY - rootY > -lengthY
-	) return 1;
-	return 0;
-}
 	
 int main( int argc, char **argv ) {
 
@@ -135,8 +109,6 @@ int main( int argc, char **argv ) {
 		goto quit_3;
 	}
 
-	printf( "Initialization Successfull\n" );
-
 	/* Game Assets */
 	SDL_Texture *grass = loadTexture( "img/grass.png" , renderer );
 	SDL_Texture *bush = loadTexture( "img/bush.png" , renderer );
@@ -155,92 +127,89 @@ int main( int argc, char **argv ) {
 		goto quit_5;
 	}
 
-	printf( "Game Assets Loaded\n" );
-
 	/* Game Code */
 	
 	SDL_Event e;
-	int quit = 0;
 	while ( quit == 0 ) {
 		while ( SDL_PollEvent(&e) ) {
-			if ( e.type == SDL_QUIT ) {
-				quit = 1;
-			}
-			if ( e.type == SDL_KEYDOWN ) {
-				switch ( e.key.keysym.sym ) {
-
-					/* Mission Critical */
-
-					/* Q (for quit) */
-					case SDLK_q:
+			switch ( e.type ) {
+				case SDL_QUIT:
 					quit = 1;
 					break;
-					
-					/* ESCAPE (for quit) */
-					case SDLK_ESCAPE:
-					quit = 1;
-					break;
-					
-					/* -- Player Movement -- */
+			
+				case SDL_KEYDOWN:
+					switch ( e.key.keysym.sym ) {
 
-					/* Right Arrow */
-					case SDLK_RIGHT:
-					playerX++;
-					playerDirection = SDL_FLIP_HORIZONTAL;
-					break;
-					
-					/* Left Arrow */
-					case SDLK_LEFT:
-					playerX--;
-					playerDirection = SDL_FLIP_NONE;
-					break;
+						/* Mission Critical */
 
-					/* Up Arrow */
-					case SDLK_UP:
-					playerY--;
-					break;
+						/* Q (for quit) */
+						case SDLK_q:
+						/* ESCAPE (for quit) */
+						case SDLK_ESCAPE:
+						quit = 1;
+						break;
+						
+						/* -- Player Movement -- */
 
-					/* Down Arrow */
-					case SDLK_DOWN:
-					playerY++;
-					break;
-					
-					/* Space */
-					case SDLK_SPACE:
-					eaten[(playerX*PLAYER_STEP)/TILE_WIDTH][(playerY*PLAYER_STEP)/TILE_HEIGHT] = 1;
-					Mix_PlayChannel( -1, nom, 0 );
-					break;
+						/* Right Arrow */
+						case SDLK_RIGHT:
+						playerX++;
+						playerDirection = SDL_FLIP_HORIZONTAL;
+						break;
+						
+						/* Left Arrow */
+						case SDLK_LEFT:
+						playerX--;
+						playerDirection = SDL_FLIP_NONE;
+						break;
 
-					/* -- Background Movement -- */
-		
-					/* D */
-					case SDLK_d:
-					backX++;
-					backDirection = SDL_FLIP_HORIZONTAL;
-					break;
-					
-					/* A */
-					case SDLK_a:
-					backX--;
-					backDirection = SDL_FLIP_NONE;
-					break;
+						/* Up Arrow */
+						case SDLK_UP:
+						playerY--;
+						break;
 
-					/* W */
-					case SDLK_w:
-					backY--;
+						/* Down Arrow */
+						case SDLK_DOWN:
+						playerY++;
+						break;
+						
+						/* Space */
+						case SDLK_SPACE:
+						eaten[(playerX*PLAYER_STEP)/TILE_WIDTH][(playerY*PLAYER_STEP)/TILE_HEIGHT] = 1;
+						Mix_PlayChannel( -1, nom, 0 );
+						break;
+
+						/* -- Background Movement -- */
+
+						/* D */
+						case SDLK_d:
+						backX++;
+						backDirection = SDL_FLIP_HORIZONTAL;
+						break;
+						
+						/* A */
+						case SDLK_a:
+						backX--;
+						backDirection = SDL_FLIP_NONE;
+						break;
+
+						/* W */
+						case SDLK_w:
+						backY--;
+						break;
+
+						/* S */
+						case SDLK_s:
+						backY++;
+						break;
+
+					}
 					break;
-
-					/* S */
-					case SDLK_s:
-					backY++;
+				
+				case SDL_MOUSEBUTTONDOWN:
+					SDL_GetMouseState( &mouseX, &mouseY );
+					eaten[mouseX/(TILE_WIDTH*SCALE)][mouseY/(TILE_HEIGHT*SCALE)] = 1;
 					break;
-
-				}
-
-			}
-			if ( e.type == SDL_MOUSEBUTTONDOWN ) {
-				SDL_GetMouseState( &mouseX, &mouseY );
-				eaten[mouseX/(TILE_WIDTH*SCALE)][mouseY/(TILE_HEIGHT*SCALE)] = 1;
 			}
 		}
 
