@@ -1,2 +1,2 @@
 # sdl-goat
-SDL2 Goat Game
+SDL2 toy (bad) Goat Game
