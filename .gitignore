@@ -41,6 +41,7 @@
 *.su
 *.idb
 *.pdb
+gmon.out
 
 # Kernel Module Compile Results
 *.mod*
